@@ -10,7 +10,20 @@ import (
 	"net/url"
 )
 
-// показываем все песни
+// @Summary Get list of songs
+// @Description Retrieve a list of songs with optional filters and pagination
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param group query string false "Filter by group"
+// @Param name query string false "Filter by song name"
+// @Param page query int false "Page number"
+// @Param page_size query int false "Number of items per page"
+// @Param sort query string false "Sort order (e.g., 'id', '-id', 'name', '-name')"
+// @Success 200 {object} map[string]interface{} "List of songs with metadata"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /songs [get]
 func (app *application) listSongsHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name  string
@@ -43,7 +56,18 @@ func (app *application) listSongsHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// добавляем новую песню
+// @Summary Add a new song
+// @Description Create a new song by providing the group name and song title. Additional details are fetched from an external API.
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param song body data.Song true "Group and song details"
+// @Success 201 {object} data.Song "The newly created song"
+// @Header 201 {string} Location "/songs/{id}" "URL of the created song"
+// @Failure 400 {object} map[string]string "Invalid request data"
+// @Failure 422 {object} map[string]interface{} "Validation error"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /songs [post]
 func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Group string `json:"group"`
@@ -126,6 +150,16 @@ func (app *application) fetchSongDetails(group, song string) (*data.Song, error)
 	}, nil
 }
 
+// @Summary Delete a song
+// @Description Delete a song by its ID
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param id path int true "Song ID"
+// @Success 200 {object} map[string]string "Message indicating successful deletion"
+// @Failure 404 {object} map[string]string "Song not found"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /songs/{id} [delete]
 func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -144,12 +178,26 @@ func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie successfully deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "song successfully deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
+// @Summary Update song details
+// @Description Update the details of an existing song by its ID.
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param id path int true "Song ID"
+// @Param input body map[string]interface{} true "Song details to update"
+// @Success 200 {object} data.Song "Updated song data"
+// @Failure 400 {object} map[string]string "Bad request or invalid input"
+// @Failure 404 {object} map[string]string "Song not found"
+// @Failure 409 {object} map[string]string "Edit conflict occurred"
+// @Failure 422 {object} map[string]interface{} "Validation error"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /songs/{id} [put]
 func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -210,6 +258,19 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// @Summary Get lyrics of a song
+// @Description Retrieve song lyrics with pagination by verses
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param id path int true "Song ID"
+// @Param page query int false "Page number"
+// @Param size query int false "Number of verses per page"
+// @Success 200 {object} map[string]interface{} "Lyrics with pagination"
+// @Failure 400 {object} map[string]string "Bad request or invalid parameters"
+// @Failure 404 {object} map[string]string "Song not found"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /songs/{id}/lyrics [get]
 func (app *application) getSongLyricsHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -219,7 +280,12 @@ func (app *application) getSongLyricsHandler(w http.ResponseWriter, r *http.Requ
 
 	song, err := app.models.Songs.Get(id)
 	if err != nil {
+		if errors.Is(err, data.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
+		return
 	}
 
 	v := validator.New()

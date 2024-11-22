@@ -14,6 +14,10 @@ help:
 confirm:
 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
 
+.PHONY: swag/init
+swag/init:
+	swag init --dir ./cmd/api --output ./cmd/api/docs --parseDependency --parseInternal
+
 # ==================================================================================== # 
 # DEVELOPMENT
 # ==================================================================================== #

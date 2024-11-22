@@ -5,6 +5,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (app *application) routes() http.Handler {
@@ -27,6 +28,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPut, "/songs/:id", app.updateSongHandler)
 	//добавление новой песни
 	router.HandlerFunc(http.MethodPost, "/songs", app.createSongHandler)
+
+	router.HandlerFunc(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
 
 	standard := alice.New(
 		app.recoverPanic, //обработчик для восстановления после паники

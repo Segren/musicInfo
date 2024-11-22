@@ -1,3 +1,8 @@
+// @title Music API
+// @version 0.0.1
+// @description API for managing music library
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (
@@ -15,6 +20,8 @@ import (
 
 	"github.com/Segren/testTask/internal/data"
 	"github.com/Segren/testTask/internal/jsonlog"
+
+	_ "github.com/Segren/testTask/cmd/api/docs"
 )
 
 var (
@@ -58,8 +65,8 @@ func GetConfig() *config {
 		flag.IntVar(&instance.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 		flag.StringVar(&instance.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
 
-		flag.Float64Var(&instance.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
-		flag.IntVar(&instance.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
+		flag.Float64Var(&instance.limiter.rps, "limiter-rps", 20, "Rate limiter maximum requests per second")
+		flag.IntVar(&instance.limiter.burst, "limiter-burst", 50, "Rate limiter maximum burst")
 		flag.BoolVar(&instance.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
 		// булево для отображения версии проекта и выхода
