@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  data.Metadata:
+    properties:
+      currentPage:
+        type: integer
+      first_page:
+        type: integer
+      last_page:
+        type: integer
+      page_size:
+        type: integer
+      total_records:
+        type: integer
+    type: object
   data.Song:
     properties:
       group:
@@ -16,6 +29,15 @@ definitions:
         type: string
       version:
         type: integer
+    type: object
+  data.SongsResponse:
+    properties:
+      metadata:
+        $ref: '#/definitions/data.Metadata'
+      songs:
+        items:
+          $ref: '#/definitions/data.Song'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -56,20 +78,11 @@ paths:
         "200":
           description: List of songs with metadata
           schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/data.SongsResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Get list of songs
       tags:
       - songs
@@ -96,23 +109,15 @@ paths:
               type: string
           schema:
             $ref: '#/definitions/data.Song'
-        "400":
-          description: Invalid request data
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "422":
-          description: Validation error
+          description: Unprocessable Entity
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
-          description: Internal server error
+          description: the server encountered a problem and could not process your
+            request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Add a new song
       tags:
       - songs
@@ -133,21 +138,15 @@ paths:
         "200":
           description: Message indicating successful deletion
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "404":
           description: Song not found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Delete a song
       tags:
       - songs
@@ -166,8 +165,7 @@ paths:
         name: input
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/data.Song'
       produces:
       - application/json
       responses:
@@ -178,32 +176,23 @@ paths:
         "400":
           description: Bad request or invalid input
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "404":
           description: Song not found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "409":
           description: Edit conflict occurred
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "422":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Update song details
       tags:
       - songs
@@ -237,21 +226,15 @@ paths:
         "400":
           description: Bad request or invalid parameters
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "404":
           description: Song not found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Get lyrics of a song
       tags:
       - songs

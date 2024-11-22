@@ -20,9 +20,8 @@ import (
 // @Param page query int false "Page number"
 // @Param page_size query int false "Number of items per page"
 // @Param sort query string false "Sort order (e.g., 'id', '-id', 'name', '-name')"
-// @Success 200 {object} map[string]interface{} "List of songs with metadata"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 200 {object} data.SongsResponse "List of songs with metadata"
+// @Failure 500 {string} string "Internal server error"
 // @Router /songs [get]
 func (app *application) listSongsHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -64,9 +63,8 @@ func (app *application) listSongsHandler(w http.ResponseWriter, r *http.Request)
 // @Param song body data.Song true "Group and song details"
 // @Success 201 {object} data.Song "The newly created song"
 // @Header 201 {string} Location "/songs/{id}" "URL of the created song"
-// @Failure 400 {object} map[string]string "Invalid request data"
-// @Failure 422 {object} map[string]interface{} "Validation error"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 422 {string} string
+// @Failure 500 {string} string "the server encountered a problem and could not process your request"
 // @Router /songs [post]
 func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -156,9 +154,9 @@ func (app *application) fetchSongDetails(group, song string) (*data.Song, error)
 // @Accept json
 // @Produce json
 // @Param id path int true "Song ID"
-// @Success 200 {object} map[string]string "Message indicating successful deletion"
-// @Failure 404 {object} map[string]string "Song not found"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 200 {string} string "Message indicating successful deletion"
+// @Failure 404 {string} string "Song not found"
+// @Failure 500 {string} string "Internal server error"
 // @Router /songs/{id} [delete]
 func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -190,13 +188,13 @@ func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request
 // @Accept json
 // @Produce json
 // @Param id path int true "Song ID"
-// @Param input body map[string]interface{} true "Song details to update"
+// @Param input body data.Song true "Song details to update"
 // @Success 200 {object} data.Song "Updated song data"
-// @Failure 400 {object} map[string]string "Bad request or invalid input"
-// @Failure 404 {object} map[string]string "Song not found"
-// @Failure 409 {object} map[string]string "Edit conflict occurred"
-// @Failure 422 {object} map[string]interface{} "Validation error"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {string} string "Bad request or invalid input"
+// @Failure 404 {string} string "Song not found"
+// @Failure 409 {string} string "Edit conflict occurred"
+// @Failure 422 {string} string "Validation error"
+// @Failure 500 {string} string "Internal server error"
 // @Router /songs/{id} [put]
 func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -267,9 +265,9 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 // @Param page query int false "Page number"
 // @Param size query int false "Number of verses per page"
 // @Success 200 {object} map[string]interface{} "Lyrics with pagination"
-// @Failure 400 {object} map[string]string "Bad request or invalid parameters"
-// @Failure 404 {object} map[string]string "Song not found"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {string} string "Bad request or invalid parameters"
+// @Failure 404 {string} string "Song not found"
+// @Failure 500 {string} stringg "Internal server error"
 // @Router /songs/{id}/lyrics [get]
 func (app *application) getSongLyricsHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)

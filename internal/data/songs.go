@@ -26,6 +26,11 @@ type Song struct {
 	Version     int32     `json:"version"`
 }
 
+type SongsResponse struct {
+	Songs    []Song   `json:"songs"`
+	Metadata Metadata `json:"metadata"`
+}
+
 func (m SongModel) Insert(song *Song) error {
 	query := `
 	    INSERT INTO songs ("group", name, releaseDate, text, link)

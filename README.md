@@ -41,6 +41,11 @@ cp env.example .env
 make help
 ```
 
+## Просмотр Swagger документации:
+```bash
+http://localhost:8080/swagger/index.html#/
+```
+
 ## Осуществление миграций:
 Перед запуском проекта требуется осуществить миграцию бд
 ```bash
