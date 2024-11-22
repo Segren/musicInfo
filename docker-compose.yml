@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_TIME: ${BUILD_TIME}
+        VERSION: ${VERSION}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      GO_ENV: production
+      MUSIC_DB_DSN: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable
+    env_file:
+      - .env
+    networks:
+      - app_network
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-music}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pa55word}
+      POSTGRES_DB: ${POSTGRES_DB:-music}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-music}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_network
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9443:9443" # HTTPS доступ к Portainer
+      - "8000:8000" # API для агента Portainer (опционально)
+    volumes:
+      - portainer-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock # Доступ к Docker API
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db-data:
+  portainer-data:
